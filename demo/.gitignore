@@ -2,3 +2,4 @@
 raylib/
 quickui.h
 quickui.c
+../dist/
