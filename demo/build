@@ -19,6 +19,6 @@ fi
 cp ../src/quickui.c .
 cp ../src/quickui.h .
 
-cc -Iraylib/include -o raylib-demo.o raylib.c quickui.c -Lraylib/lib -l:libraylib.a -lm
+cc -Iraylib/include -o raylib-demo.o raylib-demo.c quickui.c -Lraylib/lib -l:libraylib.a -lm
 
 cc -o sdl-demo.o sdl-demo.c quickui.c -lSDL2 -lSDL2_ttf
