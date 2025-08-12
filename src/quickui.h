@@ -39,9 +39,12 @@ typedef struct qui_Context {
 
 
     qui_Id last_id;
-
     float cursor_x, cursor_y;
     float spacing_x, spacing_y;
+    
+    void *font;
+    float font_size;
+    float font_spacing;
 
     void *userdata;
 
@@ -51,10 +54,12 @@ typedef struct qui_Context {
     float (*text_height)(struct qui_Context*, const char *text);
 } qui_Context;
 
-void qui_init(qui_Context *qui_ctx, void *user_data);
 
+void qui_init(qui_Context *qui_ctx, void *user_data);
 void qui_begin(qui_Context *qui_ctx, float start_x, float start_y);
 void qui_end(qui_Context *qui_ctx);
+
+void qui_set_font(qui_Context *qui_ctx, void *font, float font_size, float font_spacing);
 
 void qui_mouse_down(qui_Context *ctx, int x, int y);
 void qui_mouse_up(qui_Context *ctx, int x, int y);

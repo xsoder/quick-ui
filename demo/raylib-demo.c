@@ -12,7 +12,14 @@ void raylib_draw_rect(qui_Context* ctx, float x, float y, float w, float h, qui_
 }
 
 void raylib_draw_text(qui_Context* ctx, const char *text, float x, float y) {
-    DrawText(text, (int)x, (int)y, 20, WHITE);
+    Font *font = (Font *)ctx->font;
+    Color font_color = GRAY;
+    if (!font){
+        DrawText(text, (int)x, (int)y, 20, font_color);
+    } 
+    else{
+        DrawTextEx(*font, text, (Vector2){x, y}, ctx->font_size,ctx->font_spacing, font_color);
+    }
 }
 
 float raylib_text_width(qui_Context* ctx, const char *text) {
@@ -29,10 +36,12 @@ int main(void) {
     
     InitWindow(screenWidth, screenHeight, "QuickUI + Raylib Example");
     SetTargetFPS(60);
-    
+
+    Font font = LoadFont("Iosevka-Regular.ttf");
     // QuickUI context
     qui_Context ui_ctx;
     qui_init(&ui_ctx, NULL);
+    qui_set_font(&ui_ctx, &font, 20, 2);
     
     ui_ctx.draw_rect = raylib_draw_rect;
     ui_ctx.draw_text = raylib_draw_text;
@@ -85,22 +94,25 @@ int main(void) {
         
         qui_begin(&ui_ctx, 50.0f, 50.0f);
         
-        DrawText("QuickUI + Raylib Demo", 50, 20, 30, RAYWHITE);
+        Vector2 position = {50 , 20 };
+        float size = 30;
+        float spacing = 2;
+        DrawTextEx(font,"QuickUI + Raylib Demo" , position, size, spacing, RAYWHITE);
         
         if (qui_button(&ui_ctx, "Click Me!")) {
             button_clicks++;
         }
-        
+
         char button_info[64];
         snprintf(button_info, sizeof(button_info), "Button clicked: %d times", button_clicks);
-        DrawText(button_info, 50, (int)ui_ctx.cursor_y, 16, LIGHTGRAY);
+        DrawTextEx(font, button_info, (Vector2) {50, (int)ui_ctx.cursor_y}, size, spacing, LIGHTGRAY);
         ui_ctx.cursor_y += 25;
         
         qui_checkbox(&ui_ctx, "Enable Feature", &checkbox_value);
         
         char checkbox_info[64];
         snprintf(checkbox_info, sizeof(checkbox_info), "Checkbox is: %s", checkbox_value ? "ON" : "OFF");
-        DrawText(checkbox_info, 50, (int)ui_ctx.cursor_y, 16, LIGHTGRAY);
+        DrawTextEx(font, checkbox_info, (Vector2) {50, (int)ui_ctx.cursor_y}, size, spacing, LIGHTGRAY);
         ui_ctx.cursor_y += 25;
         
         qui_slider_float(&ui_ctx, "Volume", &slider_value, 0.0f, 100.0f, 200.0f);
@@ -109,12 +121,12 @@ int main(void) {
         
         char textbox_info[64];
         snprintf(textbox_info, sizeof(textbox_info), "Text input %s", focused ? "(focused)" : "");
-        DrawText(textbox_info, 50, (int)ui_ctx.cursor_y, 16, LIGHTGRAY);
+        DrawTextEx(font, textbox_info, (Vector2) {50, (int)ui_ctx.cursor_y}, size, spacing, LIGHTGRAY);
         ui_ctx.cursor_y += 25;
         
         char content_info[512];
         snprintf(content_info, sizeof(content_info), "Content: \"%s\"", textbox_buffer);
-        DrawText(content_info, 50, (int)ui_ctx.cursor_y, 14, YELLOW);
+        DrawTextEx(font, content_info, (Vector2) {50, (int)ui_ctx.cursor_y}, size, spacing, YELLOW);
         ui_ctx.cursor_y += 30;
         char debug_info[256];
 
@@ -122,8 +134,8 @@ int main(void) {
             "Mouse: (%d, %d) | Active ID: %u | Hot ID: %u | Focus ID: %u",
             (int)mouse_pos.x, (int)mouse_pos.y, 
             ui_ctx.active_id, ui_ctx.hot_id, ui_ctx.keyboard_focus_id);
-        DrawText(debug_info, 10, screenHeight - 25, 12, BLUE);
-
+            DrawTextEx(font, debug_info, (Vector2) {10, screenHeight - 25}, size - 2, 2, BLUE);
+        
         qui_end(&ui_ctx);
         
         EndDrawing();

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// TODO: Proper Error Handeling and logging
 // implemntaed Colors
 static qui_Color fg     = { 56 ,56 ,56 ,255 };
 static qui_Color hot    = { 80 ,80 ,80 ,255 };
@@ -15,6 +16,7 @@ static qui_Id qui_gen_id(qui_Context *ctx) {
     return ctx->last_id;
 }
 
+
 void qui_init(qui_Context *ctx, void *user_data) {
     if (!ctx) return;
     memset(ctx, 0, sizeof(*ctx));
@@ -26,6 +28,9 @@ void qui_init(qui_Context *ctx, void *user_data) {
     ctx->col_box_active = active;
     ctx->col_text = text;
     ctx->last_id = 0;
+    ctx->font = NULL;
+    ctx->font_size = 0;
+    ctx->font_spacing = 0;
 }
 
 void qui_begin(qui_Context *ctx, float start_x, float start_y) {
@@ -73,6 +78,13 @@ void qui_feed_key_enter(qui_Context *ctx) {
     ctx->key_enter = 1;
 }
 
+// Font Garbage
+void qui_set_font(qui_Context *ctx, void *font, float font_size, float font_spacing) {
+    ctx->font = font;
+    ctx->font_size = font_size;
+    ctx->font_spacing = font_spacing;
+}
+
 qui_Vec2 qui_vec2(int x, int y) { qui_Vec2 v = {x,y}; return v; }
 qui_Rect qui_rec(int width, int height, int pos_x, int pos_y) { qui_Rect r = {width,height,pos_x,pos_y}; return r; }
 qui_RectV2 qui_recV2(qui_Vec2 size, qui_Vec2 pos) { qui_RectV2 r = {size,pos}; return r; }
@@ -101,6 +113,8 @@ static float qui_text_height_fallback(qui_Context *ctx, const char *text) {
     if (ctx->text_height) return ctx->text_height(ctx, text);
     return 16.0f;
 }
+
+
 
 // button
 int qui_button(qui_Context *ctx, const char *label) {
