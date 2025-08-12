@@ -9,6 +9,7 @@ static qui_Id qui_gen_id(qui_Context *ctx) {
     return ctx->last_id;
 }
 
+// TODO: Color specification
 void qui_init(qui_Context *ctx, void *user_data) {
     if (!ctx) return;
     memset(ctx, 0, sizeof(*ctx));
