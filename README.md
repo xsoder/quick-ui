@@ -29,8 +29,8 @@ sudo apt-get install libsdl2-dev
 
 ## Example
 
-![sdl2](resources/sdl2.png)
-![raylib](resources/raylib.png)
+![sdl2](resources/sdl-demo.png)
+![raylib](resources/raylib-demo.png)
 
 ## Core Concepts
 
