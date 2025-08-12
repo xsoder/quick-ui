@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+RAYLIB_DIR="raylib"
+RAYLIB_TARBALL="raylib-5.5_linux_amd64.tar.gz"
+RAYLIB_URL="https://github.com/raysan5/raylib/releases/download/5.5/$RAYLIB_TARBALL"
+
+if [ -d "$RAYLIB_DIR" ]; then
+		echo "raylib directory found, skipping download."
+else
+		echo "raylib not found. Downloading raylib 5.5..."
+		wget "$RAYLIB_URL" -O "$RAYLIB_TARBALL" || { echo "Download failed!"; exit 1; }
+		echo "Extracting raylib..."
+		tar -xzf "$RAYLIB_TARBALL" || { echo "Extraction failed!"; exit 1; }
+		mv raylib-5.5_linux_amd64 raylib
+		rm "$RAYLIB_TARBALL"
+		echo "raylib is ready in $RAYLIB_DIR"
+fi
+
+cp ../src/quickui.c .
+cp ../src/quickui.h .
+
+cc -Iraylib/include -o raylib-demo.o raylib.c quickui.c -Lraylib/lib -l:libraylib.a -lm
+
+cc -o sdl-demo.o sdl-demo.c quickui.c -lSDL2 -lSDL2_ttf
