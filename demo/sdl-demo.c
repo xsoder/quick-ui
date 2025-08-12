@@ -63,7 +63,7 @@ int main(void) {
     g.font = TTF_OpenFont("Iosevka-Regular.ttf", 20);
     if (!g.font) { 
         fprintf(stderr, "TTF_OpenFont failed: %s\n", TTF_GetError());
-		printf("Install Iosevka");
+		printf("Install Iosevka\n");
 		exit(1);
     }
 
