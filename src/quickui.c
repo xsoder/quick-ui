@@ -3,23 +3,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// implemntaed Colors
+static qui_Color fg     = { 56 ,56 ,56 ,255 };
+static qui_Color hot    = { 80 ,80 ,80 ,255 };
+static qui_Color active = { 100 ,100 ,100 ,255 };
+static qui_Color text   = { 255 ,255 ,255 ,255 };
+
 static qui_Id qui_gen_id(qui_Context *ctx) {
     ctx->last_id += 1;
     if (ctx->last_id == 0) ctx->last_id = 1;
     return ctx->last_id;
 }
 
-// TODO: Color specification
 void qui_init(qui_Context *ctx, void *user_data) {
     if (!ctx) return;
     memset(ctx, 0, sizeof(*ctx));
     ctx->userdata = user_data;
     ctx->spacing_x = 8.0f;
     ctx->spacing_y = 8.0f;
-    ctx->col_box = (qui_Color){56,56,56,255};
-    ctx->col_box_hot = (qui_Color){80,80,80,255};
-    ctx->col_box_active = (qui_Color){100,100,100,255};
-    ctx->col_text = (qui_Color){255,255,255,255};
+    ctx->col_box = fg;
+    ctx->col_box_hot = hot;
+    ctx->col_box_active = active;
+    ctx->col_text = text;
     ctx->last_id = 0;
 }
 
