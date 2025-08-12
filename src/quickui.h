@@ -5,11 +5,6 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-typedef enum {
-    MOUSE_BUTTON_CLICKED,
-    MOUSE_BUTTON_HOVERED,
-} qui_Mouse_Option;
-
 typedef uint32_t qui_Id;
 typedef struct { int x , y; } qui_Vec2;
 typedef struct { int r , g, b, a; } qui_Color;

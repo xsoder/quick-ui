@@ -81,7 +81,7 @@ int main(void) {
         }
         
         BeginDrawing();
-        ClearBackground(DARKGRAY);
+        ClearBackground(CLITERAL(Color) {0x18, 0x18, 0x18, 0xFF});
         
         qui_begin(&ui_ctx, 50.0f, 50.0f);
         
