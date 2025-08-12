@@ -1,3 +1,7 @@
+/* Copyright (c) 2025 csode
+ * Licensed under the GPL3 License. See LICENSE file for details.
+ */
+
 #ifndef QUICK_UI_H
 #define QUICK_UI_H
 

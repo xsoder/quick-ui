@@ -4,9 +4,10 @@
 #include <stdlib.h>
 
 // TODO: Proper Error Handeling and logging
+
 // implemntaed Colors
-static qui_Color fg     = { 56 ,56 ,56 ,255 };
-static qui_Color hot    = { 80 ,80 ,80 ,255 };
+static qui_Color fg     = { 56  ,56  ,56  ,255 };
+static qui_Color hot    = { 80  ,80  ,80  ,255 };
 static qui_Color active = { 100 ,100 ,100 ,255 };
 static qui_Color text   = { 255 ,255 ,255 ,255 };
 
