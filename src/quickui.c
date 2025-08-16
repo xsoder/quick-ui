@@ -2,8 +2,47 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <stdarg.h>
+#include <assert.h>
 
 // TODO: Proper Error Handeling and logging
+
+typedef enum {
+    ERROR,
+    LOG,
+    INFO,
+    WARNING,
+    NO_LOGS,
+ } qui_Log_Messages;
+
+
+void qui_log(qui_Log_Messages level, const char *fmt, ...)
+{
+    switch (level) {
+    case INFO:
+        fprintf(stderr, "[INFO] ");
+        break;
+    case WARNING:
+        fprintf(stderr, "[WARNING] ");
+        break;
+    case LOG:
+        fprintf(stderr, "[LOG] ");
+        break;
+    case ERROR:
+        fprintf(stderr, "[ERROR] ");
+        break;
+    case NO_LOGS: return;
+    default:
+        exit(1);
+    }
+
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+    va_end(args);
+    fprintf(stderr, "\n");
+}
 
 // implemntaed Colors
 static qui_Color fg     = { 56  ,56  ,56  ,255 };
@@ -19,7 +58,7 @@ static qui_Id qui_gen_id(qui_Context *ctx) {
 
 
 void qui_init(qui_Context *ctx, void *user_data) {
-    if (!ctx) return;
+    assert(ctx !=NULL);
     memset(ctx, 0, sizeof(*ctx));
     ctx->userdata = user_data;
     ctx->spacing_x = 8.0f;
@@ -35,6 +74,7 @@ void qui_init(qui_Context *ctx, void *user_data) {
 }
 
 void qui_begin(qui_Context *ctx, float start_x, float start_y) {
+    assert(ctx !=NULL);
     ctx->cursor_x = start_x;
     ctx->cursor_y = start_y;
     ctx->last_id = 0;
@@ -42,6 +82,7 @@ void qui_begin(qui_Context *ctx, float start_x, float start_y) {
 }
 
 void qui_end(qui_Context *ctx) {
+    assert(ctx !=NULL);
     ctx->mouse_pressed = 0;
     ctx->mouse_released = 0;
     ctx->key_backspace = 0;
@@ -49,13 +90,16 @@ void qui_end(qui_Context *ctx) {
 }
 
 void qui_mouse_down(qui_Context *ctx, int x, int y) {
+    assert(ctx !=NULL);
     ctx->mouse_pos.x = x;
     ctx->mouse_pos.y = y;
     ctx->mouse_down = 1;
     ctx->mouse_pressed = 1;
+    
 }
 
 void qui_mouse_up(qui_Context *ctx, int x, int y) {
+    assert(ctx !=NULL);
     ctx->mouse_pos.x = x;
     ctx->mouse_pos.y = y;
     ctx->mouse_down = 0;
@@ -63,68 +107,90 @@ void qui_mouse_up(qui_Context *ctx, int x, int y) {
 }
 
 void qui_mouse_move(qui_Context *ctx, int x, int y) {
+    assert(ctx !=NULL);
     ctx->mouse_pos.x = x;
     ctx->mouse_pos.y = y;
 }
 
 void qui_feed_mouse_button(qui_Context *ctx, int pressed) {
+    assert(ctx !=NULL);
     ctx->mouse_pressed = pressed ? 1 : 0;
 }
 
 void qui_feed_key_backspace(qui_Context *ctx) {
+    assert(ctx !=NULL);
     ctx->key_backspace = 1;
 }
 
 void qui_feed_key_enter(qui_Context *ctx) {
+    assert(ctx !=NULL);
     ctx->key_enter = 1;
 }
 
 // Font Garbage
 void qui_set_font(qui_Context *ctx, void *font, float font_size, float font_spacing) {
+    assert(ctx !=NULL);
     ctx->font = font;
     ctx->font_size = font_size;
     ctx->font_spacing = font_spacing;
 }
 
-qui_Vec2 qui_vec2(int x, int y) { qui_Vec2 v = {x,y}; return v; }
-qui_Rect qui_rec(int width, int height, int pos_x, int pos_y) { qui_Rect r = {width,height,pos_x,pos_y}; return r; }
-qui_RectV2 qui_recV2(qui_Vec2 size, qui_Vec2 pos) { qui_RectV2 r = {size,pos}; return r; }
+qui_Vec2 qui_vec2(int x, int y)
+{
+    qui_Vec2 v = {x,y};
+    return v;
+}
+qui_Rect qui_rec(int width, int height, int pos_x, int pos_y)
+{
+    qui_Rect r = {width,height,pos_x,pos_y};
+    return r;
+}
+qui_RectV2 qui_recV2(qui_Vec2 size, qui_Vec2 pos)
+{
+    qui_RectV2 r = {size,pos};
+    return r;
+}
 
-void qui_draw_rect(qui_Context *ctx, qui_Rect *rec, qui_Color col) {
+void qui_draw_rect(qui_Context *ctx, qui_Rect *rec, qui_Color col)
+{
     if (ctx->draw_rect) ctx->draw_rect(ctx, (float)rec->pos_x, (float)rec->pos_y, (float)rec->width, (float)rec->height, col);
 }
 
-void qui_draw_text(qui_Context *ctx, const char *text, float x, float y) {
+void qui_draw_text(qui_Context *ctx, const char *text, float x, float y)
+{
     if (ctx->draw_text) ctx->draw_text(ctx, text, x, y);
 }
 
-static int qui_hit(qui_Context *ctx, float x, float y, float w, float h) {
+static int qui_hit(qui_Context *ctx, float x, float y, float w, float h)
+{
     int mx = ctx->mouse_pos.x;
     int my = ctx->mouse_pos.y;
     return (mx >= (int)x && mx <= (int)(x+w) && my >= (int)y && my <= (int)(y+h));
 }
 
 //text metrics 
-static float qui_text_width_fallback(qui_Context *ctx, const char *text) {
+static float qui_text_width_fallback(qui_Context *ctx, const char *text)
+{
     if (ctx->text_width) return ctx->text_width(ctx, text);
     return (float)strlen(text) * 8.0f;
 }
 
-static float qui_text_height_fallback(qui_Context *ctx, const char *text) {
+static float qui_text_height_fallback(qui_Context *ctx, const char *text)
+{
     if (ctx->text_height) return ctx->text_height(ctx, text);
     return 16.0f;
 }
 
-
-
 // button
-int qui_button(qui_Context *ctx, const char *label) {
+int qui_button(qui_Context *ctx, const char *label)
+{
     qui_Id id = qui_gen_id(ctx);
     float tw = qui_text_width_fallback(ctx, label);
     float w = tw + 20.0f;
     float h = qui_text_height_fallback(ctx, label) + 8.0f;
     float x = ctx->cursor_x;
     float y = ctx->cursor_y;
+    int clicked = 0;
 
     if (qui_hit(ctx, x, y, w, h)) {
         ctx->hot_id = id;
@@ -139,7 +205,6 @@ int qui_button(qui_Context *ctx, const char *label) {
     qui_draw_rect(ctx, &r, col);
     qui_draw_text(ctx, label, x + 10.0f, y + 4.0f);
 
-    int clicked = 0;
     if (ctx->mouse_released && ctx->active_id == id) {
         if (qui_hit(ctx, x, y, w, h)) clicked = 1;
         ctx->active_id = 0;

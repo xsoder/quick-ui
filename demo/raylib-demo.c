@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define is_font_enable false
+#define is_font_enable true
 
 // BACKEND IMPLEMNTATION
 void raylib_draw_rect(qui_Context* ctx, float x, float y, float w, float h, qui_Color col) {
@@ -93,7 +93,7 @@ int main(void) {
         }
         
         BeginDrawing();
-        ClearBackground(CLITERAL(Color) {0x18, 0x18, 0x18, 0xFF});
+        ClearBackground(GRAY);
         
         qui_begin(&ui_ctx, 50.0f, 50.0f);
         
