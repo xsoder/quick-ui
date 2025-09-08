@@ -64,6 +64,7 @@ int main(void) {
     const int screenWidth = 800;
     const int screenHeight = 600;
     
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(screenWidth, screenHeight, "QuickUI + Raylib Image Button Example");
     SetTargetFPS(60);
 
@@ -278,7 +279,6 @@ int main(void) {
         EndDrawing();
     }
     
-    // unload textures and font if loaded
     UnloadTexture(save_texture);
     UnloadTexture(load_texture);
     UnloadTexture(delete_texture);
