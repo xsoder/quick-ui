@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define is_font_enable false
+#define is_font_enable true
 
 // BACKEND IMPLEMENTATION
 void raylib_draw_rect(qui_Context* ctx, float x, float y, float w, float h, qui_Color col) {
@@ -72,7 +72,8 @@ int main(void) {
     
     Font font = {0};
     if (FileExists("Iosevka-Regular.ttf")) {
-        font = LoadFont("Iosevka-Regular.ttf");
+        font = LoadFontEx("Iosevka-Regular.ttf", 128, 0, 0);
+        SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
         qui_set_font(&ctx, &font, 20, 2);
     } else {
         qui_set_font(&ctx, NULL, 20, 2);

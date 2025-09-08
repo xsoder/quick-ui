@@ -2,7 +2,7 @@ DESTDIR ?=
 BINDIR := bin/
 
 CFLAGS := -Wall -Wextra -Iraylib-5.5_linux_amd64/include
-LDFLAGS := -Lraylib-5.5_linux_amd64/lib -l:libraylib.a -lm
+LDFLAGS := -Lraylib-5.5_linux_amd64/lib -l:libraylib.a -lm -lpthread
 
 SRC := demo.c 
 BIN := penger
