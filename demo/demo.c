@@ -17,10 +17,8 @@ void raylib_draw_text(qui_Context* ctx, const char *text, float x, float y) {
     Color font_color = { (unsigned char)ctx->col_text.r, (unsigned char)ctx->col_text.g, (unsigned char)ctx->col_text.b, (unsigned char)ctx->col_text.a };
     
     if (!fontPtr) {
-        // fallback using built-in font size 20
         DrawText(text, (int)x, (int)y, 20, font_color);
     } else {
-        // DrawTextEx takes Font (not Font*)
         DrawTextEx(*fontPtr, text, (Vector2){x, y}, ctx->font_size, ctx->font_spacing, font_color);
     }
 }
@@ -69,17 +67,14 @@ int main(void) {
     InitWindow(screenWidth, screenHeight, "QuickUI + Raylib Image Button Example");
     SetTargetFPS(60);
 
-    // QuickUI context
     qui_Context ctx;
     qui_init(&ctx, NULL);
     
     Font font = {0};
-    // Try to load a font file; if not present, ctx.font will be NULL and fallback text will be used
     if (FileExists("Iosevka-Regular.ttf")) {
         font = LoadFont("Iosevka-Regular.ttf");
         qui_set_font(&ctx, &font, 20, 2);
     } else {
-        // leave ctx.font == NULL to use default DrawText fallback
         qui_set_font(&ctx, NULL, 20, 2);
     }
     
@@ -118,7 +113,6 @@ int main(void) {
 
     while (!WindowShouldClose()) {
 
-        // update ctx width/height so popup centering works
         ctx.width = screenWidth;
         ctx.height = screenHeight;
 
