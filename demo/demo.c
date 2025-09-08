@@ -1,5 +1,4 @@
-// RAYLIB_EXAMPLE.c with Image Button Support
-
+// RAYLIB_EXAMPLE.c
 #include <raylib.h>
 #include "quickui.h"
 #include <stdio.h>
@@ -9,50 +8,49 @@
 
 // BACKEND IMPLEMENTATION
 void raylib_draw_rect(qui_Context* ctx, float x, float y, float w, float h, qui_Color col) {
-    Color raylib_color = { col.r, col.g, col.b, col.a };
+    Color raylib_color = { (unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, (unsigned char)col.a };
     DrawRectangle((int)x, (int)y, (int)w, (int)h, raylib_color);
 }
 
 void raylib_draw_text(qui_Context* ctx, const char *text, float x, float y) {
-    Font *font = (Font *)ctx->font;
-    Color font_color = { ctx->col_text.r, ctx->col_text.g, ctx->col_text.b, ctx->col_text.a };
+    Font *fontPtr = (Font *)ctx->font;
+    Color font_color = { (unsigned char)ctx->col_text.r, (unsigned char)ctx->col_text.g, (unsigned char)ctx->col_text.b, (unsigned char)ctx->col_text.a };
     
-    if (!font){
+    if (!fontPtr) {
+        // fallback using built-in font size 20
         DrawText(text, (int)x, (int)y, 20, font_color);
-    } 
-    else{
-        DrawTextEx(*font, text, (Vector2){x, y}, ctx->font_size, ctx->font_spacing, font_color);
+    } else {
+        // DrawTextEx takes Font (not Font*)
+        DrawTextEx(*fontPtr, text, (Vector2){x, y}, ctx->font_size, ctx->font_spacing, font_color);
     }
 }
 
 void raylib_draw_image(qui_Context* ctx, qui_Image *img, float x, float y, float w, float h) {
     if (!img || !img->data) return;
-    
     Texture2D *texture = (Texture2D*)img->data;
-    
+    if (!texture->id) return;
     Rectangle source = { 0, 0, (float)texture->width, (float)texture->height };
     Rectangle dest = { x, y, w, h };
     Vector2 origin = { 0, 0 };
-    
     DrawTexturePro(*texture, source, dest, origin, 0.0f, WHITE);
 }
 
 float raylib_text_width(qui_Context* ctx, const char *text) {
-    Font *font = (Font *)ctx->font;
-    if (!font) {
+    Font *fontPtr = (Font *)ctx->font;
+    if (!fontPtr) {
         return (float)MeasureText(text, 20);
     } else {
-        Vector2 size = MeasureTextEx(*font, text, ctx->font_size, ctx->font_spacing);
+        Vector2 size = MeasureTextEx(*fontPtr, text, ctx->font_size, ctx->font_spacing);
         return size.x;
     }
 }
 
 float raylib_text_height(qui_Context* ctx, const char *text) {
-    Font *font = (Font *)ctx->font;
-    if (!font) {
+    Font *fontPtr = (Font *)ctx->font;
+    if (!fontPtr) {
         return 20.0f;
     } else {
-        Vector2 size = MeasureTextEx(*font, text, ctx->font_size, ctx->font_spacing);
+        Vector2 size = MeasureTextEx(*fontPtr, text, ctx->font_size, ctx->font_spacing);
         return size.y;
     }
 }
@@ -75,8 +73,15 @@ int main(void) {
     qui_Context ctx;
     qui_init(&ctx, NULL);
     
-    Font font = LoadFont("Iosevka-Regular.ttf");
-    qui_set_font(&ctx, &font, 20, 2);
+    Font font = {0};
+    // Try to load a font file; if not present, ctx.font will be NULL and fallback text will be used
+    if (FileExists("Iosevka-Regular.ttf")) {
+        font = LoadFont("Iosevka-Regular.ttf");
+        qui_set_font(&ctx, &font, 20, 2);
+    } else {
+        // leave ctx.font == NULL to use default DrawText fallback
+        qui_set_font(&ctx, NULL, 20, 2);
+    }
     
     ctx.draw_rect = raylib_draw_rect;
     ctx.draw_text = raylib_draw_text;
@@ -107,11 +112,15 @@ int main(void) {
     static qui_vec2_t window_pos = { 50, 50 };
     static int show_popup = 0;
 
-    static float hue = 360.0f;
-    static float sat = 1.0f;
-    static float value = 1.0f;
+    static float hue = 200.0f;
+    static float sat = 0.7f;
+    static float value = 0.9f;
 
     while (!WindowShouldClose()) {
+
+        // update ctx width/height so popup centering works
+        ctx.width = screenWidth;
+        ctx.height = screenHeight;
 
         Color col = ColorFromHSV(hue, sat, value);
         Vector2 vec = { 404, 404 };
@@ -158,7 +167,7 @@ int main(void) {
         Vector2 position = {50, 20};
         float size = 30;
         float spacing = 2;
-        if (is_font_enable) DrawTextEx(font,"QuickUI + Raylib Image Button Demo", position, size, spacing, RAYWHITE);
+        if (is_font_enable && ctx.font) DrawTextEx(*(Font*)ctx.font,"QuickUI + Raylib Image Button Demo", position, size, spacing, RAYWHITE);
         else DrawText("QuickUI + Raylib Image Button Demo", 50, 20, 30, RAYWHITE);
         
         if (qui_button(&ctx, "Click Me!")) {
@@ -167,15 +176,15 @@ int main(void) {
 
         char button_info[64];
         snprintf(button_info, sizeof(button_info), "Button clicked: %d times", button_clicks);
-        if(is_font_enable) DrawTextEx(font, button_info, (Vector2) {50, (int)ctx.cursor_y}, size, spacing, LIGHTGRAY);
+        if(is_font_enable && ctx.font) DrawTextEx(*(Font*)ctx.font, button_info, (Vector2) {50, (int)ctx.cursor_y}, size, spacing, LIGHTGRAY);
         else DrawText(button_info, 50, (int)ctx.cursor_y, 16, LIGHTGRAY);
         ctx.cursor_y += 25;
         
-        if(is_font_enable) DrawTextEx(font, "Image Buttons:", (Vector2) {50, (int)ctx.cursor_y}, size, spacing, RAYWHITE);
+        if(is_font_enable && ctx.font) DrawTextEx(*(Font*)ctx.font, "Image Buttons:", (Vector2) {50, (int)ctx.cursor_y}, size, spacing, RAYWHITE);
         else DrawText("Image Buttons:", 50, (int)ctx.cursor_y, 16, RAYWHITE);
         ctx.cursor_y += 30;
         
-        if (qui_image_button(&ctx, &save_icon, 48, 48)) {
+        if (qui_image_button(&ctx, &save_icon, 48, 48, 32, 32)) {
             image_button_clicks++;
         }
         
@@ -191,7 +200,7 @@ int main(void) {
         snprintf(image_info, sizeof(image_info), 
             "Image clicks: %d | Load: %d | Delete: %d", 
             image_button_clicks, load_clicks, delete_clicks);
-        if(is_font_enable) DrawTextEx(font, image_info, (Vector2) {50, (int)ctx.cursor_y}, size, spacing, LIGHTGRAY);
+        if(is_font_enable && ctx.font) DrawTextEx(*(Font*)ctx.font, image_info, (Vector2) {50, (int)ctx.cursor_y}, size, spacing, LIGHTGRAY);
         else DrawText(image_info, 50, (int)ctx.cursor_y, 16, LIGHTGRAY);
         ctx.cursor_y += 35;
         
@@ -199,7 +208,7 @@ int main(void) {
         
         char checkbox_info[64];
         snprintf(checkbox_info, sizeof(checkbox_info), "Checkbox is: %s", checkbox_value ? "ON" : "OFF");
-        if (is_font_enable)DrawTextEx(font, checkbox_info, (Vector2) {50, (int)ctx.cursor_y}, size, spacing, LIGHTGRAY);
+        if (is_font_enable && ctx.font)DrawTextEx(*(Font*)ctx.font, checkbox_info, (Vector2) {50, (int)ctx.cursor_y}, size, spacing, LIGHTGRAY);
         else DrawText(checkbox_info, 50, (int)ctx.cursor_y, 16, LIGHTGRAY);
         ctx.cursor_y += 25;
         
@@ -209,13 +218,13 @@ int main(void) {
         
         char textbox_info[64];
         snprintf(textbox_info, sizeof(textbox_info), "Text input %s", focused ? "(focused)" : "");
-        if(is_font_enable) DrawTextEx(font, textbox_info, (Vector2) {50, (int)ctx.cursor_y}, size, spacing, LIGHTGRAY);
+        if(is_font_enable && ctx.font) DrawTextEx(*(Font*)ctx.font, textbox_info, (Vector2) {50, (int)ctx.cursor_y}, size, spacing, LIGHTGRAY);
         else DrawText(textbox_info, 50, (int)ctx.cursor_y, 16, LIGHTGRAY);
         ctx.cursor_y += 25;
         
         char content_info[512];
         snprintf(content_info, sizeof(content_info), "Content: \"%s\"", textbox_buffer);
-        if (is_font_enable) DrawTextEx(font, content_info, (Vector2) {50, (int)ctx.cursor_y}, size, spacing, YELLOW);
+        if (is_font_enable && ctx.font) DrawTextEx(*(Font*)ctx.font, content_info, (Vector2) {50, (int)ctx.cursor_y}, size, spacing, YELLOW);
         else DrawText(content_info, 50, (int)ctx.cursor_y, 16, LIGHTGRAY);
         ctx.cursor_y += 30;
         
@@ -224,7 +233,7 @@ int main(void) {
             "Mouse: (%d, %d) | Active ID: %u | Hot ID: %u | Focus ID: %u",
             (int)mouse_pos.x, (int)mouse_pos.y, 
             ctx.active_id, ctx.hot_id, ctx.keyboard_focus_id);
-        if(is_font_enable) DrawTextEx(font, debug_info, (Vector2) {10, screenHeight - 25}, size - 2, 2, BLUE);
+        if(is_font_enable && ctx.font) DrawTextEx(*(Font*)ctx.font, debug_info, (Vector2) {10, screenHeight - 25}, size - 2, 2, BLUE);
         else DrawText(debug_info, 10, screenHeight - 25, 12, BLUE);
 
         if (qui_begin_window(&ctx, "Settings Window", window_size, &window_pos)) {
@@ -238,28 +247,28 @@ int main(void) {
             qui_slider(&ctx, "Saturation", &sat, 0.0f, 1.0f, 150.0f);
             qui_slider(&ctx, "Value", &value, 0.0f, 1.0f, 150.0f);
 
-            if(is_font_enable) DrawTextEx(font, "Toolbar:", (Vector2) {ctx.layout_offset_x, ctx.layout_offset_y + ctx.cursor_y}, 18, 2, WHITE);
+            if(is_font_enable && ctx.font) DrawTextEx(*(Font*)ctx.font, "Toolbar:", (Vector2) {ctx.layout_offset_x, ctx.layout_offset_y + ctx.cursor_y}, 18, 2, WHITE);
             else DrawText("Toolbar:", ctx.layout_offset_x, ctx.layout_offset_y + ctx.cursor_y, 16, WHITE);
             ctx.cursor_y += 25;
             
             float start_x = ctx.cursor_x;
             float start_y = ctx.cursor_y;
             
-            if (qui_image_button(&ctx, &save_icon, 24, 24)) {
+            if (qui_image_button(&ctx, &save_icon, 24, 24, 20, 20)) {
                 save_clicks++;
             }
             
             ctx.cursor_x = start_x + 35;
             ctx.cursor_y = start_y;
             
-            if (qui_image_button(&ctx, &load_icon, 24, 24)) {
+            if (qui_image_button(&ctx, &load_icon, 24, 24, 20, 20)) {
                 load_clicks++;
             }
             
             ctx.cursor_x = start_x + 70;
             ctx.cursor_y = start_y;
             
-            if (qui_image_button(&ctx, &delete_icon, 24, 24)) {
+            if (qui_image_button(&ctx, &delete_icon, 24, 24, 20, 20)) {
                 delete_clicks++;
             }
             
@@ -274,10 +283,12 @@ int main(void) {
         EndDrawing();
     }
     
+    // unload textures and font if loaded
     UnloadTexture(save_texture);
     UnloadTexture(load_texture);
     UnloadTexture(delete_texture);
     UnloadTexture(settings_texture);
+    if (ctx.font) UnloadFont(*(Font*)ctx.font);
     
     CloseWindow();
     
