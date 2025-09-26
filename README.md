@@ -6,10 +6,7 @@ An immediate mode UI library written in C for creating simple, efficient user in
 Refer to the demo directory if u want to reference how the api works.
 
 ### Building
-1. Clone or download the QUICK-UI source files
-2. Include `quickui.h` in your project
-3. Compile `quickui.c` with your project
-4. Link against SDL2 or Raylib
+It is a single stand alone Immediate GUI header for those who just want simplicity
 
 ## Example
 
@@ -92,7 +89,7 @@ int main() {
         qui_begin(&ui, 20, 20);
         qui_button(&ui, "Hello World!");
         qui_checkbox(&ui, "Enable Feature", &checkbox_val);
-        qui_slider_float(&ui, "Value", &slider_val, 0.0f, 100.0f, 200.0f);
+        qui_slider(&ui, "Value", &slider_val, 0.0f, 100.0f, 200.0f);
         qui_end(&ui);
         
         EndDrawing();
